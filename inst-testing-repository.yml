@@ -13,9 +13,9 @@
      dest: /etc/apt/sources.list.d/testing.list
      line: 'deb http://raspbian.raspberrypi.org/raspbian/ testing main contrib non-free rpi'
      state: present
-	 owner: root
-	 group: root
-	 mode: "0644"
+     owner: root
+     group: root
+     mode: "0644"
      create: yes
     become: yes
 
