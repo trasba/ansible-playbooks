@@ -1,0 +1,30 @@
+#not tested...
+- name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+  hosts: "{{ hosts_prompt }}"
+  become: yes
+
+  tasks:
+  - name: apt
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+
+  - name: Upgrade all packages to the latest version
+    apt:
+      upgrade: full
+
+  - name: Install "python-pil, python-pil.imagetk, ImageMagick, cups" package
+    apt:
+      name: "{{ item }}"
+      state: latest
+    become: yes
+    with_items:
+       - python-pil
+       - python-pil.imagetk
+       - imagemagick
+       - cups
+
+  - name: add pi to lpadmin group
+    user:
+      name: pi
+      groups: lpadmin
