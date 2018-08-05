@@ -1,0 +1,28 @@
+- name: install certbot an acquire certificate from letsencrypt
+  hosts: "{{ hosts_prompt }}"
+  vars_prompt:
+    - name: "domain"
+      prompt: "What is the domain name? [something.com]"
+      private: no
+    - name: "email"
+      prompt: "What is the email address? [user@mail.com]"
+      private: no
+
+  tasks:
+
+  - include: tasks/task-testing-repository.yml
+
+  - name: Install "certbot" package (testing release)
+    apt:
+     update_cache: yes
+     cache_valid_time: 3600
+     name: "{{ item }}"
+     state: present
+     default_release: testing
+    become: yes
+    with_items:
+       - certbot
+
+  - name:
+    shell: "certbot --authenticator webroot --installer nginx --email {{email}} --domains {{domain}} --agree-tos -n -w /var/www/html"
+    become: yes
