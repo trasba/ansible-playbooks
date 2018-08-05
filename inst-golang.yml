@@ -1,0 +1,21 @@
+- name: install golang
+  hosts: "{{ hosts_prompt }}"
+
+  tasks:
+
+  - name: Install "golang" package
+    apt:
+     update_cache: yes
+     cache_valid_time: 3600
+     name: "{{ item }}"
+     state: latest
+    become: yes
+    with_items:
+       - golang
+
+  - name: add gopath to bashrc
+    lineinfile:
+     dest: ~/.bashrc
+     line: 'export GOPATH=/opt/go/gocode'
+     insertafter: 'EOF'
+     state: present
