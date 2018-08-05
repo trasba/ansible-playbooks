@@ -1,0 +1,19 @@
+#oauth2-proxy service template
+
+[Unit]
+Description=oauth2_proxy daemon
+After=network.target nginx.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/go/oauth2_proxy
+ExecStart=/opt/go/gocode/bin/oauth2_proxy --upstream=http://127.0.0.1:8080/ --cookie-secret={{ oauth_cookiesecret.stdout }} --cookie-secure=true --provider=google --client-id={{ oauth_clientid  }} --client-secret={{ oauth_clientid }} --set-xauthrequest=true --authenticated-emails-file=authorized_mail
+Restart=always
+User=root
+# Note RHEL/Fedora uses 'nobody', Debian/Ubuntu uses 'nogroup'
+Group=root
+#paths also for other applications used by the libs, e.g awk & grep
+Environment=PATH=/bin:/usr/bin:/opt/go/gocode/bin
+
+[Install]
+WantedBy=multi-user.target
