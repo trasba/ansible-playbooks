@@ -1,5 +1,6 @@
 - name: install oauth2_proxy
   hosts: "{{ hosts_prompt }}"
+  gather_facts: no
   vars_prompt:
     - name: "allowed_user"
       prompt: "Which user should have access? [user@gmail.com]"
