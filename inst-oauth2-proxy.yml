@@ -48,6 +48,7 @@
      GOPATH: "{{ GOPATH }}"
     with_items: github.com/bitly/oauth2_proxy
     when: not file_oauth2.stat.exists
+    become: yes
 
   - name: does oauth2_proxy.conf exist?
     stat:
