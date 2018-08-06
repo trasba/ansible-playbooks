@@ -1,0 +1,204 @@
+- name: install oauth2_proxy
+  hosts: "{{ hosts_prompt }}"
+  vars_prompt:
+    - name: "allowed_user"
+      prompt: "Which user should have access? [user@gmail.com]"
+      private: no
+    - name: oauth_clientid
+      prompt: "Enter oauth client-id"
+      private: no
+    - name: oauth_clientsecret
+      prompt: "Enter oauth client-secret?"
+      private: no
+
+  tasks:
+
+  - name: Install "golang, nginx & apache2" package
+    apt:
+     update_cache: yes
+     cache_valid_time: 3600
+     name: "{{ item }}"
+     state: present
+    become: yes
+    with_items:
+       - golang
+       - nginx
+       - apache2
+
+  - name: add gopath to bashrc
+    lineinfile:
+     dest: ~/.bashrc
+     line: 'export GOPATH=/opt/go/gocode'
+     insertafter: 'EOF'
+     state: present
+
+  - name: does oauth2_proxy exist?
+    stat:
+     path: /opt/go/gocode/bin/oauth2_proxy
+    register: file_oauth2
+
+  - debug:
+     msg: "oauth2_proxy binary exists skipping installation"
+    when: file_oauth2.stat.exists
+
+  - name: "Go-lang | get github.com/bitly/oauth2_proxy"
+    shell: "go get -u {{ item }}"
+    environment:
+     GOPATH: "{{ GOPATH }}"
+    with_items: github.com/bitly/oauth2_proxy
+    when: not file_oauth2.stat.exists
+
+  - name: does oauth2_proxy.conf exist?
+    stat:
+     path: /etc/nginx/snippets/oauth2_proxy.conf
+    register: file_oauth2_conf
+
+  - debug:
+     msg: "oauth2_proxy.conf exists in nginx/snippets skipping creation"
+    when: file_oauth2_conf.stat.exists
+
+  - name: Copy oauth2_proxy.conf template to /etc/nginx/snippets
+    template:
+     src: tpl-oauth2-proxy-nginx.j2
+     dest: /etc/nginx/snippets/oauth2_proxy.conf
+     owner: root
+     group: root
+     mode: '0644'
+    become: yes
+    when: not file_oauth2_conf.stat.exists
+
+  - name: add oauth2_proxy.conf snippet to nginx default site
+    lineinfile:
+     line: '        include snippets/oauth2_proxy.conf;'
+     dest: /etc/nginx/sites-enabled/default
+     insertafter: ".*include.*snakeoil\\.conf.*"
+    become: yes
+
+  - name: insert/update location /private/ configuration block in /etc/nginx/sites-enabled/default
+    blockinfile:
+     dest: /etc/nginx/sites-enabled/default
+     marker: "### {mark} ANSIBLE MANAGED BLOCK oauth2_proxy location"
+     insertbefore: ^(?!\s*#).+location.+$
+     block: |
+
+      #every change in this block will be overwritten when the ansible playbook ranMatch
+           location /private/ {
+               rewrite /private/(.*) /$1  break;
+               auth_request /oauth2/auth;
+               error_page 401 = /oauth2/sign_in;
+
+               # pass information via X-User and X-Email headers to backend,
+               # requires running with --set-xauthrequest flag
+               auth_request_set $user   $upstream_http_x_auth_request_user;
+               auth_request_set $email  $upstream_http_x_auth_request_email;
+               proxy_set_header X-User  $user;
+               proxy_set_header X-Email $email;
+
+               # if you enabled --cookie-refresh, this is needed for it to work with auth_request
+               auth_request_set $auth_cookie $upstream_http_set_cookie;
+               add_header Set-Cookie $auth_cookie;
+
+               proxy_pass http://127.0.0.1:8080;
+               # or "root /path/to/site;" or "fastcgi_pass ..." etc
+               # root /var/www/html/;
+             }
+    become: yes
+
+  - name: "create coockie-secret"
+    shell: "python -c 'import os,base64; print base64.urlsafe_b64encode(os.urandom(16))'"
+    register: oauth_cookiesecret
+    changed_when: False
+
+  - name: "create directory /opt/go/oauth2_proxy/systemd/system"
+    file:
+     path: /opt/go/oauth2_proxy/systemd/system
+     state: directory
+     owner: root
+     group: root
+     mode: '0755'
+    become: yes
+
+  - name: create authorized_mail if not exists in /opt/go/oauth2_proxy/
+    lineinfile:
+     line: '#authorized_mail file for oauth2_proxy one email per line all listed emails have access'
+     create: yes
+     dest: /opt/go/oauth2_proxy/authorized_mail
+     owner: root
+     group: root
+     mode: '0644'
+    become: yes
+
+  - name: add user to /opt/go/oauth2_proxy/authorized_mail
+    lineinfile:
+     line: "{{ allowed_user }}"
+     dest: /opt/go/oauth2_proxy/authorized_mail
+    become: yes
+
+  - name: does oauth2_proxy.service exist?
+    stat:
+     path: /opt/go/oauth2_proxy/systemd/system/oauth2_proxy.service
+    register: file_oauth2_service
+
+  - debug:
+     msg: "oauth2_proxy.service exists in /opt/go/oauth2_proxy/systemd/system skipping creation"
+    when: file_oauth2_service.stat.exists
+
+  - name: copy template files to /opt/go/oauth2_proxy
+    template:
+     src: tpl-oauth2-proxy-service.j2
+     dest: /opt/go/oauth2_proxy/systemd/system/oauth2_proxy.service
+     owner: root
+     group: root
+     mode: '0644'
+    become: yes
+    when: not file_oauth2_service.stat.exists
+
+  - name: does symlink oauth2_proxy.service exist?
+    stat:
+     path: /etc/systemd/system/oauth2_proxy.service
+    register: file_oauth2_service_symlink
+
+  - debug:
+     msg: "oauth2_proxy.service exists in /etc/systemd/system/ skipping creation"
+    when: file_oauth2_service_symlink.stat.exists
+
+  - name: "create oauth2-proxy service symlink"
+    shell: "systemctl enable /opt/go/oauth2_proxy/systemd/system/oauth2_proxy.service"
+    become: yes
+    when: not file_oauth2_service_symlink.stat.exists
+
+  - name: enable and start oauth2-proxy service
+    systemd:
+     name: oauth2_proxy.service
+     enabled: yes
+     state: started
+     daemon_reload: yes
+    become: yes
+
+  - name: restart nginx service
+    systemd:
+     name: nginx.service
+     enabled: yes
+     state: restarted
+    become: yes
+
+  - name: apache2 change port to 8080 (ports.conf)
+    lineinfile:
+     line: "Listen 8080"
+     regexp: (?!\s*#).*Listen.80.*
+     dest: /etc/apache2/ports.conf
+    become: yes
+
+  - name: apache2 change port to 8080 (000-default.conf)
+    lineinfile:
+     line: "<VirtualHost *:8080>"
+     regexp: (?!\s*#).*<VirtualHost.*
+     dest: /etc/apache2/sites-enabled/000-default.conf
+    become: yes
+
+  - name: restart apache2 service
+    systemd:
+     name: apache2.service
+     enabled: yes
+     state: restarted
+    become: yes
