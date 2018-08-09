@@ -38,3 +38,5 @@
      - "Pin: release a=stable"
      - "Pin-Priority: 900"
     become: yes
+
+  - include: task-upd-rep.yml
