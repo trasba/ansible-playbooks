@@ -21,7 +21,7 @@
      default_release: testing
     become: yes
     with_items:
-       - certbot
+       - python-certbot-nginx
 
   - name:
     shell: "certbot --authenticator webroot --installer nginx --email {{email}} --domains {{domain}} --agree-tos -n -w /var/www/html"
