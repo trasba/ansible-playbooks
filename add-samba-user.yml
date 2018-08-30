@@ -15,5 +15,5 @@
     become: yes
     
   - name: set password (smbpasswd) for {{username}}
-    shell: "(echo "{{password}}"; echo "password") | smbpasswd -s -a {{user}}"
+    shell: "(echo ""{{password}}""; echo ""{{password}}"") | smbpasswd -s -a {{user}}"
     become: yes
