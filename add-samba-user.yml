@@ -11,9 +11,9 @@
   tasks:
 
   - name: add user {{user}}
-    shell: "useradd -s /bin/false {{username}}"
+    shell: "useradd -s /bin/false {{ username }}"
     become: yes
     
   - name: set password (smbpasswd) for {{username}}
-    shell: "(echo ""{{password}}""; echo ""{{password}}"") | smbpasswd -s -a {{user}}"
+    shell: '(echo {{ password }}; echo {{ password }}) | smbpasswd -s -a {{ username }}'
     become: yes
