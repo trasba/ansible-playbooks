@@ -1,0 +1,14 @@
+ - name: Install "python3-pip" package if missing
+   apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    name: "{{ item }}"
+    state: present
+   become: yes
+   with_items:
+    - python3-pip
+
+- name: Update pip to the newsst versino via pip
+  pip:
+   name: pip
+   state: latest
