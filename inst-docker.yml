@@ -3,23 +3,15 @@
 
   tasks:
 
+  - include: tasks/task-inst-upd-pip.yml
+
   - name: run script from get.docker.com
     shell: "curl -fsSL get.docker.com -o- | sudo -E bash"
     become: yes
 
-  - name: Install "pip" package if missing
-    apt:
-     update_cache: yes
-     cache_valid_time: 3600
-     name: "{{ item }}"
-     state: present
-    become: yes
-    with_items:
-       - pip
-
   - name: add pi to docker group
     user:
-      name: pi
+      name: {{ username | default('pi') }}
       groups: docker
     become: yes
 
