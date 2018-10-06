@@ -11,10 +11,10 @@
 
   - name: add pi to docker group
     user:
-      name: {{ username | default('pi') }}
+      name: '{{ username | default(pi) }}'
       groups: docker
     become: yes
 
   # Install (docker-compose) python package.
   - pip:
-    name: docker-compose
+     name: docker-compose

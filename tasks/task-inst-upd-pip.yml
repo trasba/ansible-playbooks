@@ -1,4 +1,4 @@
- - name: Install "python3-pip" package if missing
+ - name: Install "python-pip" package if missing
    apt:
     update_cache: yes
     cache_valid_time: 3600
@@ -6,9 +6,9 @@
     state: present
    become: yes
    with_items:
-    - python3-pip
+    - python-pip
 
-- name: Update pip to the newsst versino via pip
-  pip:
-   name: pip
-   state: latest
+ - name: Update pip to the newest version via pip
+   pip:
+    name: pip
+    state: latest
