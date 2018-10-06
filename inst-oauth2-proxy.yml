@@ -45,7 +45,7 @@
   - name: "Go-lang | get github.com/bitly/oauth2_proxy"
     shell: "go get -u {{ item }}"
     environment:
-     GOPATH: "{{ GOPATH }}"
+     GOPATH: "{{ lookup('env','GOPATH') }}"
     with_items: github.com/bitly/oauth2_proxy
     when: not file_oauth2.stat.exists
     become: yes
