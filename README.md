@@ -6,4 +6,4 @@ prerequisite: ansible
 
 run with e.g.:
 
-ansible-playbook inst-testing-repository.yml -e "hosts_prompt=\<client\>"
+ansible-playbook inst-testing-repository.yml -e "hosts_prompt=\<client\> username=\<user(default=pi)\>"
