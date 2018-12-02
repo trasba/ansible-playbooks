@@ -1,0 +1,32 @@
+  - name: Install "software-properties-common" package
+    apt:
+     update_cache: yes
+     cache_valid_time: 3600
+     name: "{{ item }}"
+     state: present
+    become: yes
+    with_items:
+       - software-properties-common
+
+  - name: add repository universe
+    shell: "add-apt-repository universe"
+    become: yes
+    
+  - name: add repository universe
+    shell: "add-apt-repository ppa:certbot/certbot"
+    become: yes
+
+  - name: Install "certbot" package
+    apt:
+     update_cache: yes
+     name: "{{ item }}"
+     state: present
+    become: yes
+    with_items:
+       - python-certbot-nginx
+       - nginx
+
+  - name:
+    shell: "certbot --authenticator nginx --installer nginx --email {{email}} --domains {{domain}} --agree-tos -n -w /var/www/html"
+    become: yes
+

@@ -4,25 +4,18 @@
     - name: "domain"
       prompt: "What is the domain name? [something.com]"
       private: no
+      when: domain is not defined
     - name: "email"
       prompt: "What is the email address? [user@mail.com]"
       private: no
+      when: email is not defined
 
   tasks:
 
-  - include: tasks/task-testing-repository.yml
+  - include: tasks/task-rpi-inst-certbot.yml
+    when: (ansible_lsb['id'] == "Raspbian") and
+          (ansible_lsb['major_release'] == "9")
 
-  - name: Install "certbot" package (testing release)
-    apt:
-     update_cache: yes
-     cache_valid_time: 3600
-     name: "{{ item }}"
-     state: present
-     default_release: testing
-    become: yes
-    with_items:
-       - python-certbot-nginx
-
-  - name:
-    shell: "certbot --authenticator nginx --installer nginx --email {{email}} --domains {{domain}} --agree-tos -n -w /var/www/html"
-    become: yes
+  - include: tasks/task-ubu-inst-certbot.yml
+    when: (ansible_lsb['id'] == "Ubuntu") and
+          (ansible_lsb['release'] == "18.04")

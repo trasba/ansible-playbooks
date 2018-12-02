@@ -1,0 +1,17 @@
+  - include: tasks/task-testing-repository.yml
+
+  - name: Install "certbot" package (testing release)
+    apt:
+     update_cache: yes
+     cache_valid_time: 3600
+     name: "{{ item }}"
+     state: present
+     default_release: testing
+    become: yes
+    with_items:
+       - nginx
+       - python-certbot-nginx
+
+  - name:
+    shell: "certbot --authenticator nginx --installer nginx --email {{email}} --domains {{domain}} --agree-tos -n -w /var/www/html"
+    become: yes
