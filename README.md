@@ -18,4 +18,4 @@ Playbook can now be run from commandline entirely: use -e plus
 * email: (enter email to use with letsencrypt)
 If the host-vars are not set the user will be prompted for them
 
-``` ansible-playbook inst-certbot.yml -e "hosts_prompt=localhost domain=<xy.com> email=<user@xy.com>" ```
+``` ansible-playbook inst-certbot.yml -e "hosts_prompt=localhost domain=<xy.com> email=<user@xy.com>" --ask-become-pass ```
