@@ -12,8 +12,10 @@
     shell: "add-apt-repository universe"
     become: yes
     
-  - name: add repository universe
-    shell: "add-apt-repository ppa:certbot/certbot"
+  - name: add repository ppa:certbot/certbot
+    apt_repository:
+     repo: 'ppa:certbot/certbot'
+     state: present
     become: yes
 
   - name: Install "certbot" package

@@ -18,4 +18,4 @@
 
   - include: tasks/task-ubu-inst-certbot.yml
     when: (ansible_lsb['id'] == "Ubuntu") and
-          (ansible_lsb['release'] == "18.04")
+          (ansible_lsb['release'] == "18.04" or ansible_lsb['release'] == "16.04")
