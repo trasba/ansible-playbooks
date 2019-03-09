@@ -1,0 +1,35 @@
+- name: secure ssh -> disable password login
+  hosts: "{{ hosts_prompt }}"
+  gather_facts: no
+
+  tasks:
+
+    - name: Disallow password authentication
+      lineinfile: dest=/etc/ssh/sshd_config
+                  regexp="^(#)*PasswordAuthentication"
+                  line="PasswordAuthentication no"
+                  state=present
+      become: yes
+      notify: Restart ssh
+
+    - name: Disallow ChallengeResponse authentication
+      lineinfile: dest=/etc/ssh/sshd_config
+                  regexp="^(#)*ChallengeResponseAuthentication"
+                  line="ChallengeResponseAuthentication no"
+                  state=present
+      become: yes
+      notify: Restart ssh
+
+    - name: Disallow UsePAM authentication
+      lineinfile: dest=/etc/ssh/sshd_config
+                  regexp="^(#)*UsePAM"
+                  line="UsePAM no"
+                  state=present
+      become: yes
+      notify: Restart ssh
+
+  handlers:
+
+    - name: Restart ssh
+      service: name=ssh state=restarted
+      become: yes
