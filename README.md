@@ -6,7 +6,7 @@ prerequisite: ansible
 
 run with e.g.:
 
-ansible-playbook inst-testing-repository.yml -e "hosts_prompt=\<client\> username=\<user(default=pi)\>" --ask-become-pass
+``` ansible-playbook inst-testing-repository.yml -e "hosts_prompt=\<client\> username=\<user(default=pi)\>" --ask-become-pass ```
 
 ### install certbot
 Playbook will check now for architecture and version supported are now:
