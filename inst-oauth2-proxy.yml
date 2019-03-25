@@ -69,7 +69,7 @@
     become: yes
     when: not file_oauth2_conf.stat.exists
 
-  - name: add oauth2_proxy.conf snippet to nginx default site
+  - name: add oauth2_proxy.conf snippet to nginx default site #ToDo FixMe does not really work e.g. if snakeoil line was deleted
     lineinfile:
      line: '        include snippets/oauth2_proxy.conf;'
      dest: /etc/nginx/sites-enabled/default
