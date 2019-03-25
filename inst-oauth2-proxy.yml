@@ -107,7 +107,7 @@
     become: yes
 
   - name: "create coockie-secret"
-    shell: "python -c 'import os,base64; print base64.urlsafe_b64encode(os.urandom(16))'"
+    shell: "python2 -c 'import os,base64; print base64.urlsafe_b64encode(os.urandom(16))'"
     register: oauth_cookiesecret
     changed_when: False
 
