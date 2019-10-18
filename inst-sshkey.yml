@@ -4,7 +4,7 @@
   tasks:
 
    - name: "Run ssh commands to create new ssh keys"
-     shell: ssh-keygen -f ~/.ssh/id_rsa -t ecdsa -b 512 -q -N ''
+     shell: ssh-keygen -f ~/.ssh/id_rsa -t ecdsa -b 521 -q -N ''
      args:
       creates: ~/.ssh/id_ecdsa
 
