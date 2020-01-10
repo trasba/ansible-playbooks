@@ -1,20 +1,49 @@
 - name: install docker via webscript and docker-compose via pip
   hosts: "{{ hosts_prompt }}"
+  gather_facts: no
 
   tasks:
+
+  # Example that prints return information from the previous task
+  - name: is docker installed?
+    shell: docker --version
+    register: docker_installed
+    ignore_errors: yes
+    no_log: True
+
+  - name: if docker is already installed skip related tasks
+    debug:
+      var: docker_installed.stdout
+    when: docker_installed is succeeded
 
   - include: tasks/task-inst-upd-pip.yml
 
   - name: run script from get.docker.com
     shell: "curl -fsSL get.docker.com -o- | sudo -E bash"
     become: yes
+    when: docker_installed is failed
 
   - name: add pi to docker group
     user:
       name: '{{ username | default(pi) }}'
       groups: docker
     become: yes
+    when: docker_installed is failed
 
   # Install (docker-compose) python package.
-  - pip:
+  - name: is docker-compose installed?
+    shell: /home/$USER/.local/bin/docker-compose --version
+    register: dockercompose_installed
+    ignore_errors: yes
+    no_log: True
+
+  - name: if docker-compose is already installed skip related tasks
+    debug:
+      var: dockercompose_installed.stdout
+    when: dockercompose_installed is succeeded
+
+  - name: install docker-compose
+    pip:
      name: docker-compose
+     executable: /home/$USER/.local/bin/pip3
+    when: dockercompose_installed is failed

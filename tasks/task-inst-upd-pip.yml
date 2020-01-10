@@ -2,13 +2,13 @@
    apt:
     update_cache: yes
     cache_valid_time: 3600
-    name: "{{ item }}"
+    name: python-pip
     state: present
    become: yes
-   with_items:
-    - python-pip
 
  - name: Update pip to the newest version via pip
    pip:
     name: pip
+    executable: /home/$USER/.local/bin/pip3
     state: latest
+    # might fail due to executable path on first run?
