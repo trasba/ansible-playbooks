@@ -1,0 +1,29 @@
+- name: install cronjob for reverse ssh on reboot
+  hosts: "{{ hosts_prompt }}"
+  gather_facts: no
+
+  tasks:
+
+  - name: Install "autossh" package
+    apt:
+     update_cache: yes
+     cache_valid_time: 3600
+     name: ['autossh']
+     state: latest
+    become: yes
+
+  # Creates an @reboot entry
+  - cron:
+      name: "rev-ssh kapi4"
+      special_time: reboot
+      job: '/usr/bin/autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -fNC -R 505{{ port_prompt }}:localhost:22 pi@kapi4.densatec.com'
+
+  - cron:
+      name: "rev-ssh scpi1"
+      special_time: reboot
+      job: '/usr/bin/autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -fNC -R 505{{ port_prompt }}:localhost:22 pi@sc.densatec.com'
+  
+  - cron:
+      name: "rev-ssh zwpi1"
+      special_time: reboot
+      job: '/usr/bin/autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -fNC -R 505{{ port_prompt }}:localhost:22 pi@zwpi1.densatec.com'

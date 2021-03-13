@@ -1,21 +1,23 @@
 - name: install golang
   hosts: "{{ hosts_prompt }}"
+  gather_facts: no
 
   tasks:
 
-  - name: Install "golang" package
-    apt:
-     update_cache: yes
-     cache_valid_time: 3600
-     name: "{{ item }}"
-     state: latest
+  - name: delete a file (or symlink) if it exists
+    file:
+      path: /usr/local/go
+      state: absent
     become: yes
-    with_items:
-       - golang
+
+  - name: automatically download go 1.16.2 (armv6l) from golang.org and install
+    shell: |
+      wget https://dl.google.com/go/go1.16.2.linux-armv6l.tar.gz -O - | sudo tar -C /usr/local -xz
+    become: yes
 
   - name: add gopath to bashrc
     lineinfile:
      dest: ~/.bashrc
-     line: 'export GOPATH=/opt/go/gocode'
+     line: 'export PATH=$PATH:/usr/local/go/bin'
      insertafter: 'EOF'
      state: present

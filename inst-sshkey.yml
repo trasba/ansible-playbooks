@@ -1,15 +1,16 @@
 - name: generate ssh key and install foreign ssh keys
   hosts: "{{ hosts_prompt }}"
+  gather_facts: no
 
   tasks:
 
    - name: "Run ssh commands to create new ssh keys"
-     shell: ssh-keygen -f ~/.ssh/id_rsa -t ecdsa -b 521 -q -N ''
+     shell: ssh-keygen -f ~/.ssh/id_ecdsa -t ecdsa -b 521 -q -N ''
      args:
       creates: ~/.ssh/id_ecdsa
 
-   - name: Set authorized key from file
-     authorized_key:
-      user: pi
-      state: present
-      key: "{{ lookup('file', '/home/pi/.ssh/id_ecdsa.pub') }}"
+   - name: Set authorized key from github user
+     shell: wget -O - https://github.com/trasba.keys > /home/pi/.ssh/authorized_keys
+     args:
+      creates: ~/.ssh/authorized_keys
+      

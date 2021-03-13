@@ -9,6 +9,6 @@
  - name: Update pip to the newest version via pip
    pip:
     name: pip
-    executable: /home/$USER/.local/bin/pip3
+    executable: pip3
     state: latest
     # might fail due to executable path on first run?
