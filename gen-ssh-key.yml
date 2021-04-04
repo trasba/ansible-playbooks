@@ -1,9 +1,0 @@
-- name: generate ssh keys if not exist
-  hosts: "{{ hosts_prompt }}"
-  gather_facts: yes
-
-  tasks:
-  - name: Generate /etc/ssh/ ECDSA host key
-    command :  ssh-keygen -q -t ecdsa -b 521 -f '{{ ansible_env.HOME }}/.ssh/id_ecdsa' -C "" -N ""
-    args:
-      creates: '{{ ansible_env.HOME }}/.ssh/id_ecdsa'

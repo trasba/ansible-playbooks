@@ -1,0 +1,5 @@
+#TODO
+# add line to file nano /etc/xdg/lxsession/LXDE-pi/autostart
+
+# run chromium in kiosk mode and open specified url
+#@chromium-browser --kiosk --disable-crash-reporter --disable-infobars https://dab.sc.densatec.com/timecontrol.php

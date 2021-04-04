@@ -10,14 +10,16 @@
       state: absent
     become: yes
 
+  - include: tasks/task-inst-wget.yml
+
   - name: automatically download go 1.16.2 (armv6l) from golang.org and install
     shell: |
-      wget https://dl.google.com/go/go1.16.2.linux-armv6l.tar.gz -O - | sudo tar -C /usr/local -xz
+      wget https://golang.org/dl/go1.16.3.linux-armv6l.tar.gz -O - | sudo tar -C /usr/local -xz
     become: yes
 
-  - name: add gopath to bashrc
+  - name: add gopath to system-wide profile
     lineinfile:
-     dest: ~/.bashrc
+     dest: /etc/profile
      line: 'export PATH=$PATH:/usr/local/go/bin'
      insertafter: 'EOF'
      state: present
