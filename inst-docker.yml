@@ -25,7 +25,7 @@
 
   - name: add pi to docker group
     user:
-      name: '{{ username | default(pi) }}'
+      name: '{{ user | default(pi) }}'
       groups: docker
     become: yes
     when: docker_installed is failed
