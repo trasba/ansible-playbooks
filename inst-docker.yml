@@ -9,7 +9,7 @@
     shell: docker --version
     register: docker_installed
     ignore_errors: yes
-    no_log: True
+    # no_log: True
 
   - name: if docker is already installed skip related tasks
     debug:
@@ -23,27 +23,14 @@
     become: yes
     when: docker_installed is failed
 
-  - name: add pi to docker group
+  - name: add {{ ansible_user }} to docker group
     user:
-      name: '{{ user }}'
+      name: '{{ ansible_user }}'
       groups: docker
     become: yes
     when: docker_installed is failed
 
   # Install (docker-compose) python package.
-  - name: is docker-compose installed?
-    shell: /home/$USER/.local/bin/docker-compose --version
-    register: dockercompose_installed
-    ignore_errors: yes
-    no_log: True
-
-  - name: if docker-compose is already installed skip related tasks
-    debug:
-      var: dockercompose_installed.stdout
-    when: dockercompose_installed is succeeded
-
-  - name: install docker-compose
-    pip:
-     name: docker-compose
-     executable: /home/$USER/.local/bin/pip3
-    when: dockercompose_installed is failed
+  - name: Install docker-compose python package
+    ansible.builtin.pip:
+      name: docker-compose
